@@ -23,4 +23,5 @@ Python
 8. "Upload Image" 또는 "Start Webcam" 클릭
 
 # 실행
+## Image
 ![1](https://github.com/ChangbaePark/Fall_Detected_NativeApp/assets/162611760/3949b0ab-c085-4f00-a9ba-700c722ed30f)
