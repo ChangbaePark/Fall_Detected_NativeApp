@@ -16,6 +16,6 @@ Python
 1. 해당 파일들을 다운로드
 2. 다운로드 파일들을 폴더 하나에 넣기
 3. 해당 폴더에서 마우스 우클릭으로 "Code(으)로 열기"로 해당 프로그램 파일 열기
-4. 터미널에 """pip install -r requirements.txt""" 입력
+4. 터미널에 "pip install -r requirements.txt" 입력
 6. pyqt.py 파일에서 디버깅없이 실행 클릭
 7. "Upload Image" 또는 "Start Webcam" 클릭
