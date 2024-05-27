@@ -3,7 +3,7 @@ import cv2
 import torch
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import QTimer, Qt
 from PIL import Image
 import pathlib  # PosixPath 오류 해결
@@ -27,9 +27,10 @@ def infer(model, image):
     return predictions
 
 # 추론 결과를 처리하는 함수
-def process_predictions(frame, predictions):
+def process_predictions(frame, predictions, label):
     class_names = ['Fall_Detected']
     bboxes = predictions.xyxy[0].cpu().numpy()  # bounding boxes
+    result_texts = []
     for bbox in bboxes:
         class_index = int(bbox[5])
         class_name = class_names[class_index]
@@ -39,13 +40,15 @@ def process_predictions(frame, predictions):
             cv2.rectangle(frame, (xmin, ymin), (xmax, ymax), (0, 255, 0), 2)
             cv2.putText(frame, f'{class_name}: {confidence:.2f}', (xmin, ymin - 10),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+            result_texts.append(f'{class_name}: {confidence:.2f}')
+    label.setText("\n".join(result_texts) if result_texts else "No Detections")
     return frame
 
 class FallDetectionApp(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Fall Detection App")
-        self.setGeometry(100, 100, 1200, 600)  # 가로 크기를 넓힘
+        self.setGeometry(100, 100, 1200, 800)  # 가로 크기를 넓힘
         self.model = load_model("models/fall_detected.pt")
         self.initUI()
         self.webcam = cv2.VideoCapture(0)
@@ -65,6 +68,10 @@ class FallDetectionApp(QMainWindow):
         self.result_label.setText("No Image")
         self.result_label.setStyleSheet("background-color: lightgray; border: 1px solid black;")
 
+        self.info_label = QLabel(self)
+        self.info_label.setAlignment(Qt.AlignCenter)
+        self.info_label.setStyleSheet("font-size: 18px;")
+
         self.upload_button = QPushButton("Upload Image", self)
         self.upload_button.clicked.connect(self.upload_image)
 
@@ -81,6 +88,7 @@ class FallDetectionApp(QMainWindow):
 
         layout = QVBoxLayout()
         layout.addLayout(image_layout)
+        layout.addWidget(self.info_label)
         layout.addLayout(button_layout)
 
         container = QWidget()
@@ -102,7 +110,7 @@ class FallDetectionApp(QMainWindow):
 
             processed_image = process_image(image)
             predictions = infer(self.model, processed_image)
-            result_image = process_predictions(image.copy(), predictions)
+            result_image = process_predictions(image.copy(), predictions, self.info_label)
             # 감지 결과 이미지를 오른쪽 화면에 표시
             self.display_image(result_image, self.result_label)
 
@@ -116,7 +124,7 @@ class FallDetectionApp(QMainWindow):
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             processed_image = process_image(frame_rgb)
             predictions = infer(self.model, processed_image)
-            result_frame = process_predictions(frame_rgb.copy(), predictions)
+            result_frame = process_predictions(frame_rgb.copy(), predictions, self.info_label)
             # 원본 웹캠 프레임을 왼쪽 화면에 표시
             self.display_image(frame_rgb, self.image_label)  # RGB 형식으로 표시
             # 감지 결과 웹캠 프레임을 오른쪽 화면에 표시
@@ -125,6 +133,7 @@ class FallDetectionApp(QMainWindow):
     def clear_labels(self):
         self.image_label.clear()
         self.result_label.clear()
+        self.info_label.clear()
         self.image_label.setText("No Image")
         self.result_label.setText("No Image")
 
