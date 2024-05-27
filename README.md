@@ -21,3 +21,6 @@ Python
 6. yolov5 다운로드를 위해 터미널에 "git clone https://github.com/ultralytics/yolov5" 입력
 7. pyqt.py 파일에서 디버깅없이 실행 클릭
 8. "Upload Image" 또는 "Start Webcam" 클릭
+
+# 실행
+![1](https://github.com/ChangbaePark/Fall_Detected_NativeApp/assets/162611760/3949b0ab-c085-4f00-a9ba-700c722ed30f)
