@@ -3,7 +3,7 @@ import cv2
 import torch
 import numpy as np
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QFileDialog, QVBoxLayout, QHBoxLayout, QWidget
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QPixmap, QImage, QPalette, QColor
 from PyQt5.QtCore import QTimer, Qt
 from PIL import Image
 import pathlib  # PosixPath 오류 해결
@@ -44,7 +44,7 @@ def process_predictions(frame, predictions):
 class FallDetectionApp(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Object Detection App")
+        self.setWindowTitle("Fall Detection App")
         self.setGeometry(100, 100, 1200, 600)  # 가로 크기를 넓힘
         self.model = load_model("models/fall_detected.pt")
         self.initUI()
@@ -55,9 +55,15 @@ class FallDetectionApp(QMainWindow):
     def initUI(self):
         self.image_label = QLabel(self)
         self.image_label.resize(640, 480)
-        
+        self.image_label.setAlignment(Qt.AlignCenter)
+        self.image_label.setText("No Image")
+        self.image_label.setStyleSheet("background-color: lightgray; border: 1px solid black;")
+
         self.result_label = QLabel(self)
         self.result_label.resize(640, 480)
+        self.result_label.setAlignment(Qt.AlignCenter)
+        self.result_label.setText("No Image")
+        self.result_label.setStyleSheet("background-color: lightgray; border: 1px solid black;")
 
         self.upload_button = QPushButton("Upload Image", self)
         self.upload_button.clicked.connect(self.upload_image)
@@ -119,6 +125,8 @@ class FallDetectionApp(QMainWindow):
     def clear_labels(self):
         self.image_label.clear()
         self.result_label.clear()
+        self.image_label.setText("No Image")
+        self.result_label.setText("No Image")
 
     def display_image(self, image, label):
         if image is None or image.size == 0:
@@ -131,6 +139,7 @@ class FallDetectionApp(QMainWindow):
         pixmap = QPixmap.fromImage(qimage)
         label.setPixmap(pixmap)
         label.setScaledContents(True)
+        label.setText("")
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
